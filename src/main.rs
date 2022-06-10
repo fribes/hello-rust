@@ -13,8 +13,13 @@ fn main() {
       }).unwrap();
       transfer.perform().unwrap();
   }
+  let power = parse_answer(data);
+  println!("Power consumption {:.0} W", power);
+}
+
+fn parse_answer (data: Vec<u8>) -> f64 {
   let body = std::str::from_utf8(&data).unwrap_or_else(|e| {
-      panic!("Failed to get body from {}; error is {}", url, e);
+      panic!("Failed to get body; error is {}", e);
   });
 
   let json = json::parse(body).unwrap_or_else(|e| {
@@ -25,5 +30,6 @@ fn main() {
       panic!("Failed to parse number");
   });
   let power: f64 = raw.into();
-  println!("Power consumption {:.0} W", power);
+
+  return power;
 }
