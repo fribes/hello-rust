@@ -1,9 +1,14 @@
 use curl::easy::Easy;
 
 fn main() {
+  let data = web_get("http://192.168.1.100/solar_api/v1/GetPowerFlowRealtimeData.fcgi");
+  let power = parse_answer(data);
+  println!("Power consumption {:.0} W", power);
+}
+
+fn web_get(url: &str) -> Vec<u8> {
   let mut data = Vec::new();
   let mut handle = Easy::new();
-  let url = "http://192.168.1.100/solar_api/v1/GetPowerFlowRealtimeData.fcgi";
   handle.url(url).unwrap();
   {
       let mut transfer = handle.transfer();
@@ -13,8 +18,7 @@ fn main() {
       }).unwrap();
       transfer.perform().unwrap();
   }
-  let power = parse_answer(data);
-  println!("Power consumption {:.0} W", power);
+  return data;
 }
 
 fn parse_answer (data: Vec<u8>) -> f64 {
