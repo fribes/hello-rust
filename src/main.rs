@@ -29,7 +29,7 @@ fn web_get(url: &str) -> String {
 
 fn parse_answer (body: &str) -> f32 {
   let json = json::parse(body).unwrap_or_else(|e| {
-      panic!("Failed to parse json from {}; error is {}", body, e);
+      panic!("Failed to parse json; error is {}", e);
   });
   let p_grid = json["Body"]["Data"]["Site"]["P_Grid"].as_number();
   let raw = p_grid.unwrap_or_else(||{
@@ -44,3 +44,22 @@ fn parse_answer (body: &str) -> f32 {
 fn test_parse_answer() {
     assert_eq!(parse_answer("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": 234 }}} }"), 234 as f32);
 }
+
+#[test]
+#[should_panic(expected = "Failed to parse json; error is Unexpected end of JSON")]
+fn test_parse_bad_json() {
+  parse_answer("");
+}
+
+#[test]
+#[should_panic(expected = "Failed to parse number")]
+fn test_parse_missing_attribute() {
+  parse_answer("{ \"Body\": { \"Data\": { \"Site\": {} }} }");
+}
+
+#[test]
+#[should_panic(expected = "Failed to parse number")]
+fn test_parse_not_a_number() {
+  parse_answer("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": \"not a number\" }}} }");
+}
+
