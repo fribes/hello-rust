@@ -23,6 +23,7 @@ fn web_get(url: &str) -> String {
   let body = std::str::from_utf8(&data).unwrap_or_else(|e| {
       panic!("Failed to get body; error is {}", e);
   });
+
   (*body).to_string()
 }
 
@@ -37,4 +38,9 @@ fn parse_answer (body: &str) -> f64 {
   let power: f64 = raw.into();
 
   power
+}
+
+#[test]
+fn test_parse_answer() {
+    assert_eq!(parse_answer("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": 234 }}} }"), 234 as f64);
 }
