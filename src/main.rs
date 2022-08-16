@@ -27,7 +27,7 @@ fn web_get(url: &str) -> String {
   (*body).to_string()
 }
 
-fn parse_answer (body: &str) -> f64 {
+fn parse_answer (body: &str) -> f32 {
   let json = json::parse(body).unwrap_or_else(|e| {
       panic!("Failed to parse json from {}; error is {}", body, e);
   });
@@ -35,12 +35,12 @@ fn parse_answer (body: &str) -> f64 {
   let raw = p_grid.unwrap_or_else(||{
       panic!("Failed to parse number");
   });
-  let power: f64 = raw.into();
+  let power: f32 = raw.into();
 
   power
 }
 
 #[test]
 fn test_parse_answer() {
-    assert_eq!(parse_answer("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": 234 }}} }"), 234 as f64);
+    assert_eq!(parse_answer("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": 234 }}} }"), 234 as f32);
 }
