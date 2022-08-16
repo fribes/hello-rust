@@ -1,14 +1,16 @@
 use curl::easy::Easy;
 
+const URL: &'static str = "http://192.168.1.100/solar_api/v1/GetPowerFlowRealtimeData.fcgi";
+
 fn main() {
-  let data = web_get("http://192.168.1.100/solar_api/v1/GetPowerFlowRealtimeData.fcgi");
-  let power = parse_answer(data);
+  let content = web_get(URL);
+  let power = parse_answer(&content);
   println!("Power consumption {:.0} W", power);
 }
 
-fn web_get(url: &str) -> Vec<u8> {
-  let mut data = Vec::new();
+fn web_get(url: &str) -> String {
   let mut handle = Easy::new();
+  let mut data = Vec::new();
   handle.url(url).unwrap();
   {
       let mut transfer = handle.transfer();
@@ -18,14 +20,13 @@ fn web_get(url: &str) -> Vec<u8> {
       }).unwrap();
       transfer.perform().unwrap();
   }
-  return data;
-}
-
-fn parse_answer (data: Vec<u8>) -> f64 {
   let body = std::str::from_utf8(&data).unwrap_or_else(|e| {
       panic!("Failed to get body; error is {}", e);
   });
+  (*body).to_string()
+}
 
+fn parse_answer (body: &str) -> f64 {
   let json = json::parse(body).unwrap_or_else(|e| {
       panic!("Failed to parse json from {}; error is {}", body, e);
   });
@@ -35,5 +36,5 @@ fn parse_answer (data: Vec<u8>) -> f64 {
   });
   let power: f64 = raw.into();
 
-  return power;
+  power
 }
