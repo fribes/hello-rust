@@ -2,10 +2,18 @@ use curl::easy::Easy;
 
 const URL: &'static str = "http://192.168.1.100/solar_api/v1/GetPowerFlowRealtimeData.fcgi";
 
+struct Power {
+    p_grid: f32,
+    p_load: f32,
+    p_pv: f32
+}
+
 fn main() {
   let content = web_get(URL);
-  let power = parse_answer(&content);
-  println!("Power consumption {:.0} W", power);
+  let powers = retrieve_grid_power_measure(&content);
+  println!("Grid power : {:.0} W", powers.p_grid);
+  println!("Load power : {:.0} W", powers.p_load);
+  println!("PV power : {:.0} W", powers.p_pv);
 }
 
 fn web_get(url: &str) -> String {
@@ -27,39 +35,46 @@ fn web_get(url: &str) -> String {
   (*body).to_string()
 }
 
-fn parse_answer (body: &str) -> f32 {
+fn retrieve_grid_power_measure (body: &str) -> Power {
   let json = json::parse(body).unwrap_or_else(|e| {
       panic!("Failed to parse json; error is {}", e);
   });
-  let p_grid = json["Body"]["Data"]["Site"]["P_Grid"].as_number();
-  let raw = p_grid.unwrap_or_else(||{
-      panic!("Failed to parse number");
-  });
-  let power: f32 = raw.into();
 
-  power
+  let p_grid = json["Body"]["Data"]["Site"]["P_Grid"].as_number();
+  let p_load = json["Body"]["Data"]["Site"]["P_Load"].as_number();
+  let p_pv = json["Body"]["Data"]["Site"]["P_PV"].as_number();
+
+  return Power {
+    p_grid: p_grid.unwrap_or_else(||{
+        panic!("Failed to parse number")}).into(),
+    p_load: p_load.unwrap_or_else(||{
+        panic!("Failed to parse number")}).into(),
+    p_pv: p_pv.unwrap_or_else(||{
+        panic!("Failed to parse number")}).into()
+  };
+
 }
 
 #[test]
-fn test_parse_answer() {
-    assert_eq!(parse_answer("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": 234 }}} }"), 234 as f32);
+fn test_retrieve_grid_power_measure() {
+    assert_eq!(retrieve_grid_power_measure("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": 234, \"P_Load\": 123, \"P_PV\": 22 }}} }").p_grid, 234 as f32);
 }
 
 #[test]
 #[should_panic(expected = "Failed to parse json; error is Unexpected end of JSON")]
 fn test_parse_bad_json() {
-  parse_answer("");
+  retrieve_grid_power_measure("");
 }
 
 #[test]
 #[should_panic(expected = "Failed to parse number")]
 fn test_parse_missing_attribute() {
-  parse_answer("{ \"Body\": { \"Data\": { \"Site\": {} }} }");
+  retrieve_grid_power_measure("{ \"Body\": { \"Data\": { \"Site\": {} }} }");
 }
 
 #[test]
 #[should_panic(expected = "Failed to parse number")]
 fn test_parse_not_a_number() {
-  parse_answer("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": \"not a number\" }}} }");
+  retrieve_grid_power_measure("{ \"Body\": { \"Data\": { \"Site\": { \"P_Grid\": \"not a number\" }}} }");
 }
 
