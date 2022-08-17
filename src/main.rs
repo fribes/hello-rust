@@ -45,14 +45,15 @@ fn retrieve_grid_power_measure (body: &str) -> Power {
   let p_pv = json["Body"]["Data"]["Site"]["P_PV"].as_number();
 
   return Power {
-    p_grid: p_grid.unwrap_or_else(||{
-        panic!("Failed to parse number")}).into(),
-    p_load: p_load.unwrap_or_else(||{
-        panic!("Failed to parse number")}).into(),
-    p_pv: p_pv.unwrap_or_else(||{
-        panic!("Failed to parse number")}).into()
+    p_grid: json_to_f32(p_grid),
+    p_load: json_to_f32(p_load),
+    p_pv: json_to_f32(p_pv)
   };
+}
 
+fn json_to_f32(json_value: Option<json::number::Number>) -> f32 {
+  return json_value.unwrap_or_else(||{
+        panic!("Failed to parse number")}).into()
 }
 
 #[test]
