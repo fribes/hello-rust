@@ -1,13 +1,18 @@
-
 pub struct Power {
     pub p_grid: f32,
     pub p_load: f32,
     pub p_pv: f32
 }
 
-pub fn web_get(url: &str) -> String {
+const URL: &'static str = "http://192.168.1.100/solar_api/v1/GetPowerFlowRealtimeData.fcgi";
+
+pub fn get() -> String {
+  web_get(URL)
+}
+
+fn web_get(url: &str) -> String {
   use curl::easy::Easy;
-  
+
   let mut handle = Easy::new();
   let mut data = Vec::new();
   handle.url(url).unwrap();
