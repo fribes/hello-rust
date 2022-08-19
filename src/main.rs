@@ -11,9 +11,9 @@ struct Power {
 fn main() {
   let content = web_get(URL);
   let powers = retrieve_power_measure(&content);
-  println!("Grid power : {} ", format_grid_power(powers.p_grid));
+  println!("Solar power : {:.0} W", powers.p_pv.abs());
   println!("Load power : {:.0} W", powers.p_load.abs());
-  println!("PV power : {:.0} W", powers.p_pv.abs());
+  println!("Balance to grid : {} ", format_grid_power(powers.p_grid));
 }
 
 fn format_grid_power( power: f32) -> String {
