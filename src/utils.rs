@@ -27,3 +27,13 @@ fn test_format_grid_power_drawing() {
 pub fn format_generic_power(power: f32) -> String {
   return format!("{:.0} W", power.abs())
 }
+
+#[test]
+fn test_format_generic_power_pos() {
+    assert_eq!(format_generic_power(550.0), "550 W");
+}
+
+#[test]
+fn test_format_generic_power_neg() {
+    assert_eq!(format_generic_power(-432.0), "432 W");
+}
