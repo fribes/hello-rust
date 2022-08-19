@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 json = "0.12.4"
 curl = "0.4.41"
+eframe = "0.18.0"
