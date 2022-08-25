@@ -3,7 +3,8 @@ mod fronius;
 mod utils;
 
 fn main() {
-    let options = eframe::NativeOptions::default();
+    let mut options = eframe::NativeOptions::default();
+    options.initial_window_size = Some(egui::vec2(250.0,150.0));
     eframe::run_native(
         "egui app",
         options,
